@@ -347,7 +347,7 @@ if( $ARGV[0] eq "--CheckandCleanOutput" ){
 
 	    $FilesonDisk="$myDIR/$datadir/OutputFilesfromDisk.log";
 	    system(sprintf("echo \"grep root junk3 | awk '{print \\\$8 }'| tee $FilesonDisk   \" >> junk2"));
-	    system(sprintf("source junk2;"));
+	    system(sprintf("source $myDIR/junk2;"));
 
 	    open(DAT, $FilesonDisk) || die("Could not open file $FilesonDisk!");
             while ($item = <DAT>) {
