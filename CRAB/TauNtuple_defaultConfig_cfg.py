@@ -171,58 +171,36 @@ from SkimProduction.CRAB.tauNtuplePreselection_cff import eventPreselection, obj
 eventPreselection(process,"<PRESELECTION>")
 objectPreselection(process)
 
+# When using particle-flow embedding, the generalTracks collection must be replaced by the tmfTracks
+if "PFembedded" in "<datasetpath>":
+    process.NtupleMaker.generalTracks = cms.InputTag("tmfTracks")
+    process.tobtecfakesfilter.trackCollection = cms.InputTag("tmfTracks")
+    process.trackingFailureFilter.TrackSource = cms.InputTag("tmfTracks")
+    process.MyAk5PFJetTracksAssociatorAtVertex.tracks = cms.InputTag("tmfTracks")
+
 # define and run path
 process.schedule = cms.Schedule()
 
-if "embedded" in "<DataType>":
-    process.TauNtupleSkim  = cms.Path(process.EvntCounterA
-                                  * process.metFilters
-                                  * process.eleRegressionEnergy
-                                  * process.calibratedElectrons
-                                  * process.firstLevelPreselection
-                                  * process.CountTriggerPassedEvents
-                                  * process.recoTauClassicHPSSequence
-                                  * process.eleIsoSequence
-                                  * process.JetSequence
-                                  * process.MetSequence
-                                  * process.secondLevelPreselection
-                                  * process.EvntCounterB
-                                  * process.NtupleMaker)
-elif "<DataType>" == "Data":
-    process.TauNtupleSkim  = cms.Path(process.EvntCounterA
-                                  * process.metFilters
-                                  * process.eleRegressionEnergy
-                                  * process.calibratedElectrons
-                                  * process.MultiTrigFilter
-                                  * process.firstLevelPreselection
-                                  * process.CountTriggerPassedEvents
-                                  * process.recoTauClassicHPSSequence
-                                  * process.eleIsoSequence
-                                  * process.JetSequence
-                                  * process.MetSequence
-                                  * process.secondLevelPreselection
-                                  * process.EvntCounterB
-                                  * process.NtupleMaker)
-else:
-    process.TauNtupleSkim  = cms.Path(process.EvntCounterA
-                                  * process.metFilters
-                                  * process.eleRegressionEnergy
-                                  * process.calibratedElectrons
-                                  * process.MultiTrigFilter
-                                  * process.firstLevelPreselection
-                                  * process.CountTriggerPassedEvents
-                                  * process.recoTauClassicHPSSequence
-                                  * process.eleIsoSequence
-                                  * process.JetSequence
-                                  * process.MetSequence
-                                  * process.secondLevelPreselection
-                                  * process.EvntCounterB
-                                  * process.patDefaultSequence #for MET uncertainties. Needs to be called after all other sequences.
-                                  * process.NtupleMaker)
+process.TauNtupleSkim = cms.Path()
 
+process.TauNtupleSkim += process.EvntCounterA
+process.TauNtupleSkim += process.metFilters
+process.TauNtupleSkim += process.eleRegressionEnergy
+process.TauNtupleSkim += process.calibratedElectrons
+if "embedded" not in "<DataType>":
+    process.TauNtupleSkim += process.MultiTrigFilter
 
+process.TauNtupleSkim += process.firstLevelPreselection
+process.TauNtupleSkim += process.CountTriggerPassedEvents
+process.TauNtupleSkim += process.recoTauClassicHPSSequence
+process.TauNtupleSkim += process.eleIsoSequence
+process.TauNtupleSkim += process.JetSequence
+process.TauNtupleSkim += process.MetSequence
+process.TauNtupleSkim += process.secondLevelPreselection
+process.TauNtupleSkim += process.EvntCounterB
+if not ("<DataType>" == "Data") and not ("embedded" in "<DataType>"):
+    process.TauNtupleSkim += process.patDefaultSequence
+
+process.TauNtupleSkim += process.NtupleMaker
 
 process.schedule.append(process.TauNtupleSkim)
-
-
-
